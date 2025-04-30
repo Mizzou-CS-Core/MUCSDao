@@ -17,6 +17,8 @@ def store_assignment(assignment: Assignment):
         get_connection().commit()
     except sqlite3.OperationalError as e:
         logger.error(f"Failed to insert row {asn}: {e}")
+    except sqlite3.IntegrityError as e:
+        logger.warning(f"Already exists! {e}")
 
 def store_canvas_course(course: Course):
     sql = "INSERT INTO canvas_course(canvas_id, mucs_course_code, name) VALUES (?, ?, ?)"
