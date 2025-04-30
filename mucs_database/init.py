@@ -41,9 +41,9 @@ _sql_statements = [
         ON UPDATE CASCADE
     );""",
     """CREATE TABLE IF NOT EXISTS assignments (
-    canvas_id        INTEGER PRIMARY KEY,
+    canvas_id        INTEGER NOT NULL,
     mucs_course_code TEXT    NOT NULL,
-    name             TEXT,
+    name             TEXT PRIMARY KEY,
     open_at          DATE,
     due_at           DATE    NOT NULL,
     FOREIGN KEY (mucs_course_code)
