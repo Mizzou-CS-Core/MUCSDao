@@ -4,9 +4,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 _conn: sqlite3.Connection | None = None
+_class_code: str | None = None
 
 
-sql_statements = [
+_sql_statements = [
     """CREATE TABLE IF NOT EXISTS mucsv2_course (
     course_code     TEXT    PRIMARY KEY
     );""",
@@ -51,9 +52,17 @@ sql_statements = [
         ON UPDATE CASCADE
     );"""
 ]
+def get_connection() -> sqlite3.Connection:
+    if _conn is None:
+        raise RuntimeError("Database not initialized! Call init() first.")
+    return _conn
+def get_class_code() -> str:
+    if _class_code is None:
+        raise RuntimeError("Database not initialized! Call init() first.")
+    return _class_code
 
-def initialize_database(sqlite_db_path: str) -> None:
-    global _conn
+def initialize_database(sqlite_db_path: str, class_code: str) -> None:
+    global _conn, _class_code
     if _conn is not None:
         logger.warning("Database already initialized – ignoring extra init()")
         return
@@ -72,4 +81,5 @@ def initialize_database(sqlite_db_path: str) -> None:
         cur.execute(stmt)
     _conn.commit()
     logger.info("Database initialized and schema applied")
+    _class_code = class_code
 
