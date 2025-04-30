@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
   name="mucs_database",
-  version="0.2.0",
-  packages=find_packages(include=["database", "database.*"]),
+  version="0.2.1",
+  packages=find_packages(),
   install_requires=[
   "canvas_lms_api @ git+https://github.com/Mizzou-CS-Core/CanvasRequestLibrary.git#egg=canvas_lms_api",
   ],
