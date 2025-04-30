@@ -1,7 +1,7 @@
 from canvas_lms_api import Course
 import logging
 import sqlite3
-from database.init import get_connection, get_class_code
+from mucs_database.init import get_connection, get_class_code
 logger = logging.getLogger(__name__)
 
 def _cursor():
