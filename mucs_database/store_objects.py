@@ -17,7 +17,7 @@ def store_canvas_course(course: Course):
         get_connection().commit()
     except sqlite3.OperationalError as e:
         logger.error(f"Failed to insert row {row}: {e}")
-def store_mucs_course(class_code: str):
+def store_mucs_course():
     sql = "INSERT INTO mucsv2_course(course_code) VALUES (?)"
     logger.debug(f"Storing a MUCSv2 Course with code: {get_class_code}")
     cursor = _cursor()
