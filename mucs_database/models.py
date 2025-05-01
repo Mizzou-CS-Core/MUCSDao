@@ -25,7 +25,7 @@ class Student(BaseModel):
     name = TextField()
     sortable_name = TextField()
     canvas_id = IntegerField()
-    grader = ForeignKeyField(Grader, backref="grader")
+    grader = ForeignKeyField(GradingGroup, backref="grader")
 class Assignment(BaseModel):
     mucsv2_name = TextField(primary_key=True)
     canvas_id = IntegerField()
