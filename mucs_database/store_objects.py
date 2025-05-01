@@ -7,7 +7,7 @@ from mucs_database.init import get_connection, get_mucsv2_instance_code
 from mucs_database.models import (
     MUCSV2Course,
     CanvasCourse,
-    Grader,
+    GradingGroup,
     Student,
     Assignment
 )
@@ -45,6 +45,27 @@ def store_assignment(assignment: canvas_lms_api.Assignment):
     except IntegrityError:
         logger.warning(f"Assignment {assignment.name} already exists; skipping")
 
+def store_grading_group(id: int, name: str, course_id: int,) -> int:
+    """
+    Insert a GradingGroup row (or ignore if it exists)
+    """
+    logger.debug(f"Storing GradingGroup ID: {id!r} name={name}")
+    try:
+        group = GradingGroup.create(canvas_id = id, name = name, last_updated = datetime.datetime.now(), canvas_course=course_id)
+        return group.canvas_id
+    except IntegrityError:
+        logger.warning(f"GradingGroup {id} already exists; skipping")
+def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int) -> str:
+    """
+    Insert a Student row (or ignore if it exists)
+    """
+    logger.debug(f"Storing Student pawprint: {pawprint}")
+    try:
+        student = Student.create(pawprint, name, sortable_name, canvas_id, grader=grader_id)
+        return student.pawprint
+    except IntegrityError:
+        logger.warning(f"Student {pawprint} already exists; skipping")
+
 
 def get_grader_by_name(grader_name: str) -> dict() | None:
     """Retrieves a Grader based on the name"""
@@ -52,7 +73,7 @@ def get_grader_by_name(grader_name: str) -> dict() | None:
     code = get_mucsv2_instance_code
     logger.debug(f"Retrieving grader name = {grader_name}")
     try:
-        grader_sql = Grader.get(Grader.name == grader_name)
+        grader_sql = GradingGroup.get(GradingGroup.name == grader_name)
         return {"name" : grader_sql.name, "canvas_id": grader_sql.canvas_id, "last_updated": grader_sql.last_updated}
     except DoesNotExist:
         logger.warning(f"No grader exists with the name {grader_name}")

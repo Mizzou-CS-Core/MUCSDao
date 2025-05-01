@@ -15,7 +15,7 @@ class CanvasCourse(BaseModel):
     canvas_id = IntegerField(primary_key=True)
     name = TextField()
     mucsv2_course = ForeignKeyField(MUCSV2Course, backref="mucsv2_course_instance")
-class Grader(BaseModel):
+class GradingGroup(BaseModel):
     canvas_id = IntegerField(primary_key=True)
     name = TextField(null = False)
     last_updated = DateTimeField()
