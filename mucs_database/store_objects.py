@@ -106,8 +106,8 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
             query = query.on_conflict(action='IGNORE')
         query.execute()
         return pawprint
-    except IntegrityError:
-        logger.warning(f"Student {pawprint} already exists; skipping")
+    except IntegrityError as e:
+        logger.warning(f"Student {pawprint} already exists; skipping | {e}")
 
 
 def get_grader_by_name(grader_name: str) -> dict() or None:
