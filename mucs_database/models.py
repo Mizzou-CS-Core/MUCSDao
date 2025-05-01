@@ -7,9 +7,9 @@ class BaseModel(Model):
 
 class MUCSV2Course(BaseModel):
     mucsv2_instance_code = CharField(primary_key=True)
-    last_assignment_pull = DateTimeField()
-    last_grader_pull = DateTimeField()
-    last_student_pull = DateTimeField()
+    last_assignment_pull = DateTimeField(default=datetime.datetime.utcnow)
+    last_grader_pull     = DateTimeField(default=datetime.datetime.utcnow)
+    last_student_pull    = DateTimeField(default=datetime.datetime.utcnow)
 class CanvasCourse(BaseModel):
     canvas_id = IntegerField(primary_key=True)
     name = TextField()
