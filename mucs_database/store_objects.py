@@ -86,6 +86,8 @@ def store_grading_group(id: int, name: str, course_id: int, replace: bool = True
         return id
     except IntegrityError as e:
         logger.warning(f"GradingGroup {id} already exists; skipping | {e}")
+    except Exception as e:
+        logger.error(f"{e}")
 def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int, replace: bool = True) -> str:
     """
     Insert a Student row (or ignore if it exists)
