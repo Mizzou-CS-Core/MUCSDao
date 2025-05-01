@@ -21,7 +21,7 @@ _ALLOWED_DATE_FIELDS = (
 )
 
 def store_mucs_course():
-    """Ensure there’s a MUCSV2Course row for this class_code."""
+    """Ensure there’s a MUCSV2Course row for this instance code."""
     code = get_mucsv2_instance_code()
     logger.debug(f"Ensuring MUCSV2Course[{code}] exists")
     MUCSV2Course.get_or_create(
@@ -84,7 +84,7 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
 def get_grader_by_name(grader_name: str) -> dict() or None:
     """Retrieves a Grader based on the name"""
     """Returns: dict("name", "canvas_id", "last_updated")"""
-    code = get_mucsv2_instance_code
+    code = get_mucsv2_instance_code()
     logger.debug(f"Retrieving grader name = {grader_name}")
     try:
         grader_sql = GradingGroup.get(GradingGroup.name == grader_name)
@@ -105,7 +105,7 @@ def get_cache_date_from_mucs_course(field: str) -> datetime.datetime or None:
     """
     if field not in _ALLOWED_DATE_FIELDS:
         raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
-    code = get_class_code()
+    code = get_mucsv2_instance_code()
     inst = MUCSV2Course.get_or_none(MUCSV2Course.mucsv2_instance_code == code)
     if not inst:
         return None
@@ -121,7 +121,7 @@ def update_cache_date_in_mucs_course(field: str):
     """
     if field not in _ALLOWED_DATE_FIELDS:
         raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
-    code = get_class_code()
+    code = get_mucsv2_instance_code()
     ts = datetime.datetime.now()
     (MUCSV2Course
         .update(**{field: ts})
