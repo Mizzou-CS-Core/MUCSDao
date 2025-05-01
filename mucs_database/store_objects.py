@@ -26,7 +26,7 @@ def store_assignment(assignment: Assignment):
         logger.error(f"Failed to insert row {asn}: {e}")
     except sqlite3.IntegrityError as e:
         logger.warning(f"Already exists! {e}")
-    update_cache_date(field="last_assignment_pull")
+    update_cache_date_in_mucs_course(cache_date="last_assignment_pull")
 
 def store_canvas_course(course: Course):
     sql = "INSERT INTO canvas_course(canvas_id, mucs_course_code, name) VALUES (?, ?, ?)"
@@ -51,12 +51,19 @@ def store_mucs_course():
 
 
 
-def get_cache_date(field: str):
+def get_cache_date_from_mucs_course(cache_date: str):
+    """
+    Returns the last time a particular cache date was wrote to.  
+    :param cache_date: The particular column to check. Allowed values:
+        - "last_assignment_pull"
+        - "last_grader_pull"
+        - "last_student_pull"
+    """
     cursor = _cursor
-    if field not in _ALLOWED_DATE_FIELDS:
+    if cache_date not in _ALLOWED_DATE_FIELDS:
         raise ValueError
-        logger.error(f"Bad value passed! {field} is not an allowed date column.")
-    sql = f"SELECT {field} FROM mucsv2_course WHERE course_code = (?)"
+        logger.error(f"Bad value passed! {cache_date} is not an allowed date column.")
+    sql = f"SELECT {cache_date} FROM mucsv2_course WHERE course_code = (?)"
     row = (get_class_code(), )
     cursor.execute(sql, row)
     row = cursor.fetchone()
@@ -74,12 +81,19 @@ def get_cache_date(field: str):
         raise
 
 
-def update_cache_date(field: str):
+def update_cache_date_in_mucs_course(cache_date: str):
+    """
+    Updates the time a particular cache date was wrote to.  
+    :param cache_date: The particular column to update. Allowed values:
+        - "last_assignment_pull"
+        - "last_grader_pull"
+        - "last_student_pull"
+    """
     cursor = _cursor
-    if field not in _ALLOWED_DATE_FIELDS:
+    if cache_date not in _ALLOWED_DATE_FIELDS:
         raise ValueError
-        logger.error(f"Bad value passed! {field} is not an allowed date column.")
-    sql = f"UPDATE mucsv2_course SET {field} = (?) WHERE course_code = (?)"
+        logger.error(f"Bad value passed! {cache_date} is not an allowed date column.")
+    sql = f"UPDATE mucsv2_course SET {cache_date} = (?) WHERE course_code = (?)"
     row = (datetime.datetime.now().isoformat(), get_class_code())
     try:
         cursor.execute(sql, row)
