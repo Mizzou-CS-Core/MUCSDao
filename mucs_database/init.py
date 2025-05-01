@@ -50,7 +50,7 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
     _db.create_tables([
         MUCSV2Course,
         CanvasCourse,
-        Grader,
+        GradingGroup,
         Student,
         Assignment,
     ], safe=True)
