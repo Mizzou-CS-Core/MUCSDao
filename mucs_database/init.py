@@ -2,13 +2,7 @@ import sqlite3
 import logging
 import datetime
 from peewee import *
-from mucs_database.models import (
-    MUCSV2Course,
-    CanvasCourse,
-    Grader,
-    Student,
-    Assignment
-)
+
 
 logger = logging.getLogger(__name__)
 database = Proxy()
@@ -43,6 +37,13 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
         detect_types=sqlite3.PARSE_DECLTYPES,
     )
     database.initialize(_db)
+    from mucs_database.models import (
+        MUCSV2Course,
+        CanvasCourse,
+        Grader,
+        Student,
+        Assignment
+    )
     # Optional: nicer row access
     # _conn.row_factory = sqlite3.Row
     _db.connect()
