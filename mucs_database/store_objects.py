@@ -45,24 +45,38 @@ def store_assignment(assignment: canvas_lms_api.Assignment):
     except IntegrityError:
         logger.warning(f"Assignment {assignment.name} already exists; skipping")
 
-def store_grading_group(id: int, name: str, course_id: int,) -> int:
+def store_grading_group(id: int, name: str, course_id: int, replace: bool = True) -> int:
     """
-    Insert a GradingGroup row (or ignore if it exists)
+    Insert a GradingGroup row (or ignore/replace if it exists)
     """
     logger.debug(f"Storing GradingGroup ID: {id!r} name={name}")
     try:
-        group = GradingGroup.create(canvas_id = id, name = name, last_updated = datetime.datetime.now(), canvas_course=course_id)
-        return group.canvas_id
+        query = GradingGroup.insert(canvas_id = id, name = name, last_updated = datetime.datetime.now(), canvas_course=course_id)
+        if replace:
+            # REPLACE the whole row
+            query = query.on_conflict(action='REPLACE')
+        else:
+            # DO NOTHING on conflict
+            query = query.on_conflict(action='IGNORE')
+        query.execute()
+        return id
     except IntegrityError:
         logger.warning(f"GradingGroup {id} already exists; skipping")
-def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int) -> str:
+def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int, replace: bool = True) -> str:
     """
     Insert a Student row (or ignore if it exists)
     """
     logger.debug(f"Storing Student pawprint: {pawprint}")
     try:
-        student = Student.create(pawprint, name, sortable_name, canvas_id, grader=grader_id)
-        return student.pawprint
+        query = Student.insert(pawprint, name, sortable_name, canvas_id, grader=grader_id)
+        if replace:
+            # REPLACE the whole row
+            query = query.on_conflict(action='REPLACE')
+        else:
+            # DO NOTHING on conflict
+            query = query.on_conflict(action='IGNORE')
+        query.execute()
+        return pawprint
     except IntegrityError:
         logger.warning(f"Student {pawprint} already exists; skipping")
 
