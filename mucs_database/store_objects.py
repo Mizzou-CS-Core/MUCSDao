@@ -50,6 +50,30 @@ def store_mucs_course():
         logger.error(f"Failed to insert row {row}: {e}")
 
 
+
+def get_cache_date(field: str):
+    cursor = _cursor
+    if field not in _ALLOWED_DATE_FIELDS:
+        raise ValueError
+        logger.error(f"Bad value passed! {field} is not an allowed date column.")
+    sql = f"SELECT {field} FROM mucsv2_course WHERE course_code = (?)"
+    row = (get_class_code(), )
+    cursor.execute(sql, row)
+    row = cursor.fetchone()
+    if not row:
+        # no such course_code (or no rows)
+        return None
+    date_str = row[0]
+    if date_str is None:
+        # column was NULL
+        return None
+    try:
+        return datetime.datetime.fromisoformat(date_str)
+    except ValueError as e:
+        logger.error(f"Failed to parse date {date_str!r}: {e}")
+        raise
+
+
 def update_cache_date(field: str):
     cursor = _cursor
     if field not in _ALLOWED_DATE_FIELDS:
