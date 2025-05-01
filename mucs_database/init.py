@@ -20,8 +20,8 @@ def get_mucsv2_instance_code() -> str:
     return _mucsv2_instance_code
 
 def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
-    global db, _mucsv2_instance_code
-    if db is not None:
+    global _db, _mucsv2_instance_code
+    if _db is not None:
         logger.warning("Database already initialized – ignoring extra init()")
         return
 
