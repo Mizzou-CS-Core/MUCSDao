@@ -40,8 +40,8 @@ def store_canvas_course(course: canvas_lms_api.Course, replace: bool = False):
             # DO NOTHING on conflict
             query = query.on_conflict(action='IGNORE')
         query.execute()
-    except IntegrityError:
-        logger.warning(f"CanvasCourse {course.id} already exists; skipping")
+    except IntegrityError as e:
+        logger.warning(f"CanvasCourse {course.id} already exists; skipping | {e}")
 
 def store_assignment(assignment: canvas_lms_api.Assignment, replace: bool = False):
     """Insert an Assignment row (or ignore if it exists)"""
@@ -61,8 +61,8 @@ def store_assignment(assignment: canvas_lms_api.Assignment, replace: bool = Fals
             # DO NOTHING on conflict
             query = query.on_conflict(action='IGNORE')
         query.execute()
-    except IntegrityError:
-        logger.warning(f"Assignment {assignment.name} already exists; skipping")
+    except IntegrityError as e:
+        logger.warning(f"Assignment {assignment.name} already exists; skipping | {e}")
 
 def store_grading_group(id: int, name: str, course_id: int, replace: bool = True) -> int:
     """
@@ -84,8 +84,8 @@ def store_grading_group(id: int, name: str, course_id: int, replace: bool = True
             query = query.on_conflict(action='IGNORE')
         query.execute()
         return id
-    except IntegrityError:
-        logger.warning(f"GradingGroup {id} already exists; skipping")
+    except IntegrityError as e:
+        logger.warning(f"GradingGroup {id} already exists; skipping | {e}")
 def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int, replace: bool = True) -> str:
     """
     Insert a Student row (or ignore if it exists)
