@@ -43,13 +43,13 @@ class Student(BaseModel):
     :param name: text
     :param sortable_name: text
     :param canvas_id: int
-    :param grader: foreign key to GradingGroup, will accept the primary key of GradingGroup
+    :param grading_group: foreign key to GradingGroup, will accept the primary key of GradingGroup
     """
     pawprint = TextField(primary_key=True)
     name = TextField()
     sortable_name = TextField()
     canvas_id = IntegerField()
-    grader = ForeignKeyField(GradingGroup, backref="grader")
+    grading_group = ForeignKeyField(GradingGroup, backref="grading_group")
 class Assignment(BaseModel):
     """
     :param mucsv2_name: text primary key

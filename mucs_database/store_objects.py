@@ -99,7 +99,7 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
             name=name, 
             sortable_name=sortable_name, 
             canvas_id=canvas_id, 
-            grader=grader_id)
+            grading_group=grader_id)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
