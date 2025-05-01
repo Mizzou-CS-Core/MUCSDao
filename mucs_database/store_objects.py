@@ -81,7 +81,7 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
         logger.warning(f"Student {pawprint} already exists; skipping")
 
 
-def get_grader_by_name(grader_name: str) -> dict() | None:
+def get_grader_by_name(grader_name: str) -> dict() or None:
     """Retrieves a Grader based on the name"""
     """Returns: dict("name", "canvas_id", "last_updated")"""
     code = get_mucsv2_instance_code
@@ -95,7 +95,7 @@ def get_grader_by_name(grader_name: str) -> dict() | None:
 
 
 
-def get_cache_date_from_mucs_course(field: str) -> datetime.datetime | None:
+def get_cache_date_from_mucs_course(field: str) -> datetime.datetime or None:
     """
     Returns the last time a particular cache date was wrote to.  
     :param cache_date: The particular column to check. Allowed values:
