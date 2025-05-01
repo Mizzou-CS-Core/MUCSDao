@@ -52,7 +52,7 @@ def store_assignment(assignment: canvas_lms_api.Assignment):
 
 
 def get_cache_date_from_mucs_course(field: str) -> datetime.datetime | None:
-     """
+    """
     Returns the last time a particular cache date was wrote to.  
     :param cache_date: The particular column to check. Allowed values:
         - "last_assignment_pull"
@@ -68,7 +68,7 @@ def get_cache_date_from_mucs_course(field: str) -> datetime.datetime | None:
     return getattr(inst, field)
 
 def update_cache_date_in_mucs_course(field: str):
-   """
+    """
     Updates the time a particular cache date was wrote to.  
     :param cache_date: The particular column to update. Allowed values:
         - "last_assignment_pull"
