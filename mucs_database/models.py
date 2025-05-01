@@ -1,4 +1,5 @@
 from peewee import *
+import datetime
 from mucs_database.init import database
 
 class BaseModel(Model):
