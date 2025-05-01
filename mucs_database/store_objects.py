@@ -32,7 +32,12 @@ def store_canvas_course(course: canvas_lms_api.Course):
     code = get_mucsv2_instance_code()
     logger.debug(f"Storing CanvasCourse ID={course.id!r} name={course.name!r}")
     try:
-        CanvasCourse.create(canvas_id=course.id, name=course.name,mucsv2_course=code,)
+        payload = {
+            "canvas_id" : course.id,
+            "name" : course.name,
+            "mucsv2_course" : code
+        }
+        CanvasCourse.insert(canvas_id=course.id, name=course.name,mucsv2_course=code,)
     except IntegrityError:
         logger.warning(f"CanvasCourse {course.id} already exists; skipping")
 
@@ -41,7 +46,7 @@ def store_assignment(assignment: canvas_lms_api.Assignment):
     code = get_mucsv2_instance_code()
     logger.debug(f"Storing Assignment ID={assignment.id!r} name={assignment.name!r}")
     try:
-        Assignment.create(mucsv2_name=assignment.name, canvas_id=assignment.id, open_at=assignment.unlock_at, due_at=assignment.due_at,)
+        query = Assignment.insert(mucsv2_name=assignment.name, canvas_id=assignment.id, open_at=assignment.unlock_at, due_at=assignment.due_at,)
     except IntegrityError:
         logger.warning(f"Assignment {assignment.name} already exists; skipping")
 
@@ -51,7 +56,13 @@ def store_grading_group(id: int, name: str, course_id: int, replace: bool = True
     """
     logger.debug(f"Storing GradingGroup ID: {id!r} name={name}")
     try:
-        query = GradingGroup.insert(canvas_id = id, name = name, last_updated = datetime.datetime.now(), canvas_course=course_id)
+        payload = {
+            "canvas_id" : id,
+            "name" : name,
+            "last_updated" : datetime.datetime.now(),
+            "canvas_course" : course_id
+        }
+        query = GradingGroup.insert(payload)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
@@ -68,7 +79,15 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
     """
     logger.debug(f"Storing Student pawprint: {pawprint}")
     try:
-        query = Student.insert(pawprint, name, sortable_name, canvas_id, grader=grader_id)
+        payload = {
+            "pawprint" : pawprint,
+            "name" : name,
+            "sortable_name" : sortable_name,
+            "canvas_id" : canvas_id,
+            "grader" : grader_id
+
+        }
+        query = Student.insert(payload)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
