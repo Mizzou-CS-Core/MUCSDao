@@ -3,7 +3,7 @@ from mucs_database.init import database
 
 class BaseModel(Model):
     class Meta:
-        database = database_proxy  # will be set at runtime
+        database = database  # will be set at runtime
 
 class MUCSV2Course(BaseModel):
     mucsv2_instance_code = CharField(primary_key=True)
