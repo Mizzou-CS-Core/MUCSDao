@@ -26,11 +26,6 @@ def store_mucs_course():
     logger.debug(f"Ensuring MUCSV2Course[{code}] exists")
     MUCSV2Course.get_or_create(
         mucsv2_instance_code=code,
-        defaults={
-            "last_assignment_pull": None,
-            "last_grader_pull":     None,
-            "last_student_pull":    None,
-        }
     )
 def store_canvas_course(course: canvas_lms_api.Course):
     """Insert a CanvasCourse row (or ignore if exists)."""
