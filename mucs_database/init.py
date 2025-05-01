@@ -9,7 +9,10 @@ _class_code: str | None = None
 
 _sql_statements = [
     """CREATE TABLE IF NOT EXISTS mucsv2_course (
-    course_code     TEXT    PRIMARY KEY
+    course_code     TEXT    PRIMARY KEY,
+    last_assignment_pull DATE NOT NULL,
+    last_grader_pull DATE NOT NULL,
+    last_student_pull DATE NOT NULL
     );""",
 
     """CREATE TABLE IF NOT EXISTS canvas_course (

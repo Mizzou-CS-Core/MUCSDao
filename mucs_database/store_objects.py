@@ -1,9 +1,16 @@
 from canvas_lms_api import Course, Assignment
 import logging
 import sqlite3
+import datetime
 from mucs_database.init import get_connection, get_class_code
 logger = logging.getLogger(__name__)
 
+
+_ALLOWED_DATE_FIELDS = (
+    "last_assignment_pull",
+    "last_grader_pull",
+    "last_student_pull"
+)
 def _cursor():
     return get_connection().cursor()
 
@@ -19,6 +26,7 @@ def store_assignment(assignment: Assignment):
         logger.error(f"Failed to insert row {asn}: {e}")
     except sqlite3.IntegrityError as e:
         logger.warning(f"Already exists! {e}")
+    update_cache_date(field="last_assignment_pull")
 
 def store_canvas_course(course: Course):
     sql = "INSERT INTO canvas_course(canvas_id, mucs_course_code, name) VALUES (?, ?, ?)"
@@ -42,3 +50,15 @@ def store_mucs_course():
         logger.error(f"Failed to insert row {row}: {e}")
 
 
+def update_cache_date(field: str):
+    cursor = _cursor
+    if field not in _ALLOWED_DATE_FIELDS:
+        raise ValueError
+        logger.error(f"Bad value passed! {field} is not an allowed date column.")
+    sql = f"UPDATE mucsv2_course SET {field} = (?) WHERE course_code = (?)"
+    row = (datetime.datetime.now().isoformat(), get_class_code())
+    try:
+        cursor.execute(sql, row)
+        get_connection().commit()
+    except sqlite3.OperationalError as e:
+        logger.error(f"Failed to insert row {row}: {e}")
