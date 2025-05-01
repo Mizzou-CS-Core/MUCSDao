@@ -2,6 +2,13 @@ import sqlite3
 import logging
 import datetime
 from peewee import *
+from mucs_database.models import (
+    MUCSV2Course,
+    CanvasCourse,
+    Grader,
+    Student,
+    Assignment
+)
 
 logger = logging.getLogger(__name__)
 database = Proxy()
