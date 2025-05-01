@@ -46,6 +46,20 @@ def store_assignment(assignment: canvas_lms_api.Assignment):
         logger.warning(f"Assignment {assignment.name} already exists; skipping")
 
 
+def get_grader_by_name(grader_name: str) -> dict() | None:
+    """Retrieves a Grader based on the name"""
+    """Returns: dict("name", "canvas_id", "last_updated")"""
+    code = get_mucsv2_instance_code
+    logger.debug(f"Retrieving grader name = {grader_name}")
+    try:
+        grader_sql = Grader.get(Grader.name == grader_name)
+        return {"name" : grader_sql.name, "canvas_id": grader_sql.canvas_id, "last_updated": grader_sql.last_updated}
+    except DoesNotExist:
+        logger.warning(f"No grader exists with the name {grader_name}")
+
+
+
+
 def get_cache_date_from_mucs_course(field: str) -> datetime.datetime | None:
     """
     Returns the last time a particular cache date was wrote to.  
