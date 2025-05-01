@@ -38,7 +38,7 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
     database.initialize(_db)
     # Optional: nicer row access
     # _conn.row_factory = sqlite3.Row
-     _db.connect()
+    _db.connect()
     _db.create_tables([
         MUCSV2Course,
         CanvasCourse,
