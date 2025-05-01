@@ -1,8 +1,16 @@
-from canvas_lms_api import Course, Assignment
+import canvas_lms_api
 import logging
 import sqlite3
 import datetime
-from mucs_database.init import get_connection, get_class_code
+from peewee import *
+from mucs_database.init import get_connection, get_mucsv2_instance_code
+from mucs_database.models import (
+    MUCSV2Course,
+    CanvasCourse,
+    Grader,
+    Student,
+    Assignment
+)
 logger = logging.getLogger(__name__)
 
 
@@ -11,92 +19,69 @@ _ALLOWED_DATE_FIELDS = (
     "last_grader_pull",
     "last_student_pull"
 )
-def _cursor():
-    return get_connection().cursor()
 
-def store_assignment(assignment: Assignment):
-    sql = "INSERT INTO assignments(canvas_id, mucs_course_code, name, open_at, due_at) VALUES (?, ?, ?, ?, ?)"
-    logger.debug(f"Storing an Assignment with Canvas ID: {assignment.id}")
-    asn = (assignment.id, get_class_code(), assignment.name, assignment.unlock_at, assignment.due_at)
-    cursor = _cursor()
-    try:
-        cursor.execute(sql, asn)
-        get_connection().commit()
-    except sqlite3.OperationalError as e:
-        logger.error(f"Failed to insert row {asn}: {e}")
-    except sqlite3.IntegrityError as e:
-        logger.warning(f"Already exists! {e}")
-    update_cache_date_in_mucs_course(cache_date="last_assignment_pull")
-
-def store_canvas_course(course: Course):
-    sql = "INSERT INTO canvas_course(canvas_id, mucs_course_code, name) VALUES (?, ?, ?)"
-    logger.debug(f"Storing a Course with Canvas ID: {course.id}")
-    cursor = _cursor()
-    row = (course.id, get_class_code(), course.name)
-    try:
-        cursor.execute(sql, row)
-        get_connection().commit()
-    except sqlite3.OperationalError as e:
-        logger.error(f"Failed to insert row {row}: {e}")
 def store_mucs_course():
-    sql = "INSERT INTO mucsv2_course(course_code) VALUES (?)"
-    logger.debug(f"Storing a MUCSv2 Course with code: {get_class_code()}")
-    cursor = _cursor()
-    row = (get_class_code(),)
+    """Ensure there’s a MUCSV2Course row for this class_code."""
+    code = get_mucsv2_instance_code()
+    logger.debug(f"Ensuring MUCSV2Course[{code}] exists")
+    MUCSV2Course.get_or_create(
+        mucsv2_instance_code=code,
+        defaults={
+            "last_assignment_pull": None,
+            "last_grader_pull":     None,
+            "last_student_pull":    None,
+        }
+    )
+def store_canvas_course(course: canvas_lms_api.Course):
+    """Insert a CanvasCourse row (or ignore if exists)."""
+    code = get_mucsv2_instance_code()
+    logger.debug(f"Storing CanvasCourse ID={course.id!r} name={course.name!r}")
     try:
-        cursor.execute(sql, row)
-        get_connection().commit()
-    except sqlite3.OperationalError as e:
-        logger.error(f"Failed to insert row {row}: {e}")
+        CanvasCourse.create(canvas_id=course.id, name=course.name,mucsv2_course=code,)
+    except IntegrityError:
+        logger.warning(f"CanvasCourse {course.id} already exists; skipping")
+
+def store_assignment(assignment: canvas_lms_api.Assignment):
+    """Insert an Assignment row (or ignore if it exists)"""
+    code = get_mucsv2_instance_code()
+    logger.debug(f"Storing Assignment ID={assignment.id!r} name={assignment.name!r}")
+    try:
+        Assignment.create(mucsv2_name=assignment.name, canvas_id=assignment.id, open_at=assignment.unlock_at, due_at=assignment.due_at,)
+    except IntegrityError:
+        logger.warning(f"Assignment {assignment.name} already exists; skipping")
 
 
-
-def get_cache_date_from_mucs_course(cache_date: str):
-    """
+def get_cache_date_from_mucs_course(field: str) -> datetime.datetime | None:
+     """
     Returns the last time a particular cache date was wrote to.  
     :param cache_date: The particular column to check. Allowed values:
         - "last_assignment_pull"
         - "last_grader_pull"
         - "last_student_pull"
     """
-    cursor = _cursor
-    if cache_date not in _ALLOWED_DATE_FIELDS:
-        raise ValueError
-        logger.error(f"Bad value passed! {cache_date} is not an allowed date column.")
-    sql = f"SELECT {cache_date} FROM mucsv2_course WHERE course_code = (?)"
-    row = (get_class_code(), )
-    cursor.execute(sql, row)
-    row = cursor.fetchone()
-    if not row:
-        # no such course_code (or no rows)
+    if field not in _ALLOWED_DATE_FIELDS:
+        raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
+    code = get_class_code()
+    inst = MUCSV2Course.get_or_none(MUCSV2Course.mucsv2_instance_code == code)
+    if not inst:
         return None
-    date_str = row[0]
-    if date_str is None:
-        # column was NULL
-        return None
-    try:
-        return datetime.datetime.fromisoformat(date_str)
-    except ValueError as e:
-        logger.error(f"Failed to parse date {date_str!r}: {e}")
-        raise
+    return getattr(inst, field)
 
-
-def update_cache_date_in_mucs_course(cache_date: str):
-    """
+def update_cache_date_in_mucs_course(field: str):
+   """
     Updates the time a particular cache date was wrote to.  
     :param cache_date: The particular column to update. Allowed values:
         - "last_assignment_pull"
         - "last_grader_pull"
         - "last_student_pull"
     """
-    cursor = _cursor
-    if cache_date not in _ALLOWED_DATE_FIELDS:
-        raise ValueError
-        logger.error(f"Bad value passed! {cache_date} is not an allowed date column.")
-    sql = f"UPDATE mucsv2_course SET {cache_date} = (?) WHERE course_code = (?)"
-    row = (datetime.datetime.now().isoformat(), get_class_code())
-    try:
-        cursor.execute(sql, row)
-        get_connection().commit()
-    except sqlite3.OperationalError as e:
-        logger.error(f"Failed to insert row {row}: {e}")
+    if field not in _ALLOWED_DATE_FIELDS:
+        raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
+    code = get_class_code()
+    ts = datetime.datetime.now()
+    (MUCSV2Course
+        .update(**{field: ts})
+        .where(MUCSV2Course.mucsv2_instance_code == code)
+        .execute()
+    )
+    logger.debug(f"Set {field} = {ts.isoformat()} for MUCSV2Course[{code}]")
