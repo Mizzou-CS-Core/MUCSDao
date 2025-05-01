@@ -1,5 +1,5 @@
 from peewee import *
-from database.init import database
+from mucs_database.init import database
 
 class BaseModel(Model):
     class Meta:
