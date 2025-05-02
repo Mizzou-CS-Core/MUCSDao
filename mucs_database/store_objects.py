@@ -32,7 +32,10 @@ def store_canvas_course(course: canvas_lms_api.Course, replace: bool = False):
     code = get_mucsv2_instance_code()
     logger.debug(f"Storing CanvasCourse ID={course.id!r} name={course.name!r}")
     try:
-        query = CanvasCourse.insert(canvas_id=course.id, name=course.name,mucsv2_course=code,)
+        query = CanvasCourse.insert(
+            canvas_id=course.id, 
+            name=course.name,
+            mucsv2_course=code,)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
@@ -53,7 +56,7 @@ def store_assignment(assignment: canvas_lms_api.Assignment, replace: bool = Fals
             canvas_id=assignment.id, 
             open_at=assignment.unlock_at, 
             due_at=assignment.due_at,
-            mucsv2_instance_code=code,)
+            mucsv2_course=code,)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
