@@ -23,6 +23,7 @@ def get_cache_date_from_mucs_course(field: str) -> datetime.datetime or None:
         - "last_assignment_pull"
         - "last_grader_pull"
         - "last_student_pull"
+    :returns: A datetime object representing the last write time, or None if it has never been written to
     """
     if field not in _ALLOWED_DATE_FIELDS:
         raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
@@ -33,13 +34,14 @@ def get_cache_date_from_mucs_course(field: str) -> datetime.datetime or None:
     return getattr(inst, field)
 
 
-def update_cache_date_in_mucs_course(field: str):
+def update_cache_date_in_mucs_course(field: str) -> datetime.datetime:
     """
-    Updates the time a particular cache date was wrote to.
+    Updates the time a particular cache date was wrote to with now.
     :param field: The particular column to update. Allowed values:
         - "last_assignment_pull"
         - "last_grader_pull"
         - "last_student_pull"
+    :returns: a datetime object representing the write time.
     """
     if field not in _ALLOWED_DATE_FIELDS:
         raise ValueError(f"{field!r} is not one of {_ALLOWED_DATE_FIELDS}")
@@ -51,6 +53,7 @@ def update_cache_date_in_mucs_course(field: str):
      .execute()
      )
     logger.debug(f"Set {field} = {ts.isoformat()} for MUCSV2Course[{code}]")
+    return ts
 
 
 _ALLOWED_DATE_FIELDS = (

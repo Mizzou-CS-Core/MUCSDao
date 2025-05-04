@@ -7,10 +7,17 @@ from mucs_database.person.model import Student
 logger = logging.getLogger(__name__)
 
 
-def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grader_id: int,
-                  replace: bool = True) -> str:
+def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grading_group_id: int,
+                  replace: bool = True) -> str or None:
     """
-    Insert a Student row (or ignore if it exists)
+    Insert a Student row to MUCSv2 DB
+    :param pawprint: The pawprint of the person. (In Canvas, this is the "login_id".)
+    :param name: The Canvas name of the person.
+    :param sortable_name: The Canvas sortable name of the person.
+    :param canvas_id: The Canvas ID of the person.
+    :param grading_group_id: The grading group ID that the person belongs to.
+    :param replace: Whether the DB should replace an existing row with your queried row.
+    :returns: The pawprint of the person on success, None on failure.
     """
     logger.debug(f"Storing Student pawprint: {pawprint}")
     try:
@@ -19,7 +26,7 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
             name=name,
             sortable_name=sortable_name,
             canvas_id=canvas_id,
-            grading_group=grader_id)
+            grading_group=grading_group_id)
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
@@ -30,3 +37,4 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
         return pawprint
     except IntegrityError as e:
         logger.warning(f"Student {pawprint} already exists; skipping | {e}")
+        return None

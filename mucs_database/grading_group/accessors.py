@@ -8,9 +8,14 @@ from mucs_database.grading_group.model import GradingGroup
 logger = logging.getLogger(__name__)
 
 
-def store_grading_group(canvas_id: int, name: str, course_id: int, replace: bool = True) -> int:
+def store_grading_group(canvas_id: int, name: str, course_id: int, replace: bool = True) -> int or None:
     """
-    Insert a GradingGroup row (or ignore/replace if it exists)
+    Insert a GradingGroup row to MUCSv2 DB.
+    :param canvas_id: The Canvas ID of the group.
+    :param name: The Canvas name of the group.
+    :param course_id: The Canvas course ID associated with the group.
+    :param replace: Whether the DB should replace an existing row with your queried row.
+    :returns: The canvas ID associated with the grading group on success, None on failure.
     """
     logger.debug(f"Storing GradingGroup ID: {canvas_id!r} name={name}")
     try:
@@ -30,13 +35,21 @@ def store_grading_group(canvas_id: int, name: str, course_id: int, replace: bool
         return canvas_id
     except IntegrityError as e:
         logger.warning(f"GradingGroup {canvas_id} already exists; skipping | {e}")
+        return None
     except Exception as e:
         logger.error(f"{e}")
+        return None
 
 
-def get_grader_by_name(grading_group_name: str) -> dict or None:
-    """Retrieves a Grading Group based on the name"""
-    """Returns: dict("name", "canvas_id", "last_updated")"""
+def get_grading_group_by_name(grading_group_name: str) -> dict or None:
+    """
+    Retrieves a Grading Group based on the name.
+
+    :returns: dict("name", "canvas_id", "last_updated")
+    :param grading_group_name: The name of the GradingGroup sought.
+    :raises DoesNotExist: If the grading group doesn't exist.
+
+    """
     logger.debug(f"Retrieving grading group name = {grading_group_name}")
     try:
         grader_sql = GradingGroup.get(GradingGroup.name == grading_group_name)
