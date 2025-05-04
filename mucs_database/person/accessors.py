@@ -2,15 +2,15 @@ import logging
 
 from peewee import IntegrityError
 
-from mucs_database.person.model import Student
+from mucs_database.person.model import Person
 
 logger = logging.getLogger(__name__)
 
 
-def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, grading_group_id: int,
-                  replace: bool = True) -> str or None:
+def store_person(pawprint: str, name: str, sortable_name: str, canvas_id: int, grading_group_id: int,
+                 replace: bool = True) -> str or None:
     """
-    Insert a Student row to MUCSv2 DB
+    Insert a Person row to MUCSv2 DB
     :param pawprint: The pawprint of the person. (In Canvas, this is the "login_id".)
     :param name: The Canvas name of the person.
     :param sortable_name: The Canvas sortable name of the person.
@@ -21,7 +21,7 @@ def store_student(pawprint: str, name: str, sortable_name: str, canvas_id: int, 
     """
     logger.debug(f"Storing Student pawprint: {pawprint}")
     try:
-        query = Student.insert(
+        query = Person.insert(
             pawprint=pawprint,
             name=name,
             sortable_name=sortable_name,

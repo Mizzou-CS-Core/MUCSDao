@@ -4,7 +4,7 @@ from mucs_database.grading_group.model import GradingGroup
 from mucs_database.base_model import BaseModel
 
 
-class Student(BaseModel):
+class Person(BaseModel):
     """
     :param pawprint: text primary key
     :param name: text
