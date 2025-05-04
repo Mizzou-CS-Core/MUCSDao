@@ -37,13 +37,11 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
         detect_types=sqlite3.PARSE_DECLTYPES,
     )
     database.initialize(_db)
-    from mucs_database.models import (
-        MUCSV2Course,
-        CanvasCourse,
-        GradingGroup,
-        Student,
-        Assignment
-    )
+    from mucs_database.person.model import Student
+    from mucs_database.canvas_course.model import CanvasCourse
+    from mucs_database.assignment.model import Assignment
+    from mucs_database.grading_group.model import GradingGroup
+    from mucs_database.mucsv2_course.model import MUCSV2Course
     # Optional: nicer row access
     # _conn.row_factory = sqlite3.Row
     _db.connect()

@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-  name="mucs_database",
-  version="0.5.10",
-  packages=find_packages(),
-  install_requires=[
-  "canvas_lms_api @ git+https://github.com/Mizzou-CS-Core/CanvasRequestLibrary.git#egg=canvas_lms_api",
-  "peewee",
-  ],
+    name="mucs_database",
+    version="0.6.0",
+    packages=find_packages(),
+    install_requires=[
+        "canvas_lms_api @ git+https://github.com/Mizzou-CS-Core/CanvasRequestLibrary.git#egg=canvas_lms_api",
+        "peewee",
+    ],
 )
