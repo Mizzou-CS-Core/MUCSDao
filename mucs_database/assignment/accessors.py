@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from peewee import IntegrityError
 
@@ -9,16 +10,16 @@ from mucs_database.init import get_mucsv2_instance_code
 logger = logging.getLogger(__name__)
 
 
-def store_assignment(assignment: mucs_database.assignment.model.Assignment, replace: bool = False):
+def store_assignment(name: str, canvas_id: int, open_at: datetime, due_at: datetime, replace: bool = False):
     """Insert an Assignment row (or ignore if it exists)"""
     code = get_mucsv2_instance_code()
-    logger.debug(f"Storing Assignment ID={assignment.id!r} name={assignment.name!r}")
+    logger.debug(f"Storing Assignment ID={canvas_id!r} name={name!r}")
     try:
         query = Assignment.insert(
-            mucsv2_name=assignment.name,
-            canvas_id=assignment.id,
-            open_at=assignment.unlock_at,
-            due_at=assignment.due_at,
+            mucsv2_name=name,
+            canvas_id=canvas_id,
+            open_at=open_at,
+            due_at=due_at,
             mucsv2_course=code, )
         if replace:
             # REPLACE the whole row
@@ -28,4 +29,4 @@ def store_assignment(assignment: mucs_database.assignment.model.Assignment, repl
             query = query.on_conflict(action='IGNORE')
         query.execute()
     except IntegrityError as e:
-        logger.warning(f"Assignment {assignment.name} already exists; skipping | {e}")
+        logger.warning(f"Assignment {name} already exists; skipping | {e}")

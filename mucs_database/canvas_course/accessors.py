@@ -7,15 +7,16 @@ from mucs_database.init import get_mucsv2_instance_code
 
 logger = logging.getLogger(__name__)
 
-def store_canvas_course(course: canvas_lms_api.Course, replace: bool = False):
+
+def store_canvas_course(canvas_id: int, name: str, replace: bool = False):
     """Insert a CanvasCourse row (or ignore if exists)."""
     code = get_mucsv2_instance_code()
-    logger.debug(f"Storing CanvasCourse ID={course.id!r} name={course.name!r}")
+    logger.debug(f"Storing CanvasCourse ID={canvas_id!r} name={name!r}")
     try:
         query = CanvasCourse.insert(
-            canvas_id=course.id,
-            name=course.name,
-            mucsv2_course=code,)
+            canvas_id=canvas_id,
+            name=name,
+            mucsv2_course=code, )
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
@@ -24,4 +25,4 @@ def store_canvas_course(course: canvas_lms_api.Course, replace: bool = False):
             query = query.on_conflict(action='IGNORE')
         query.execute()
     except IntegrityError as e:
-        logger.warning(f"CanvasCourse {course.id} already exists; skipping | {e}")
+        logger.warning(f"CanvasCourse {canvas_id} already exists; skipping | {e}")

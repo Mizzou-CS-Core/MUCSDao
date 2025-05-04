@@ -1,24 +1,26 @@
 import sqlite3
 import logging
-import datetime
 from peewee import *
-
+from peewee import SqliteDatabase
 
 logger = logging.getLogger(__name__)
 database = Proxy()
 
-
 _db: SqliteDatabase | None = None
-_mucsv2_instance_code: str      | None = None
+_mucsv2_instance_code: str | None = None
 
-def get_connection() -> sqlite3.Connection:
+
+def get_connection() -> SqliteDatabase:
     if _db is None:
         raise RuntimeError("Database not initialized! Call initialize_database() first.")
     return _db
+
+
 def get_mucsv2_instance_code() -> str:
     if _mucsv2_instance_code is None:
         raise RuntimeError("Database not initialized! Call initialize_database() first.")
     return _mucsv2_instance_code
+
 
 def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
     global _db, _mucsv2_instance_code
@@ -30,8 +32,8 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
     _db = SqliteDatabase(
         sqlite_db_path,
         pragmas={
-            "foreign_keys": 1,            # Enforce FK constraints
-            "journal_mode": "wal",        # For concurrent writes (optional)
+            "foreign_keys": 1,  # Enforce FK constraints
+            "journal_mode": "wal",  # For concurrent writes (optional)
         },
         check_same_thread=False,
         detect_types=sqlite3.PARSE_DECLTYPES,
@@ -55,4 +57,3 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
 
     logger.info("Database initialized and tables created")
     _mucsv2_instance_code = mucsv2_instance_code
-
