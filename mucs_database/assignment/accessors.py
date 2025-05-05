@@ -9,8 +9,9 @@ from mucs_database.init import get_mucsv2_instance_code
 logger = logging.getLogger(__name__)
 
 
-def store_assignment(name: str, canvas_id: int, open_at: datetime, 
-    due_at: datetime, original_name: str, assignment_type: str, file_count: int, replace: bool = False) -> str or None:
+def store_assignment(name: str, canvas_id: int, open_at: datetime,
+                     due_at: datetime, original_name: str, assignment_type: str, file_count: int,
+                     replace: bool = False) -> str or None:
     """
     Insert an Assignment row to MUCSv2 DB
     :param name: The name of the assignment.
@@ -30,7 +31,7 @@ def store_assignment(name: str, canvas_id: int, open_at: datetime,
             due_at=due_at,
             mucsv2_course=code,
             assignment_type=assignment_type,
-            file_submission_count = file_count,
+            file_submission_count=file_count,
             original_name=original_name, )
         if replace:
             # REPLACE the whole row
@@ -52,6 +53,7 @@ def get_assignments() -> list[dict]:
     logger.debug("Retrieving list of assignments from DB")
     return list(Assignment.select().dicts())
 
+
 def get_assignment_by_name(name: str) -> dict or None:
     """
     Returns an assignment dependent on a name.
@@ -61,10 +63,10 @@ def get_assignment_by_name(name: str) -> dict or None:
     logger.debug(f"Retrieving assignment corresponding to mucsv2_name: {name}")
     try:
         data: dict = (Assignment
-              .select()
-              .where(Assignment.mucsv2_name == name)
-              .dicts()
-              .get())
+                      .select()
+                      .where(Assignment.mucsv2_name == name)
+                      .dicts()
+                      .get())
         logger.debug(f"Retrievement successful for {name}")
         return data
     except DoesNotExist as e:

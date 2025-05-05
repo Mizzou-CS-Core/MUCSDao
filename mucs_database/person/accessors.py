@@ -1,8 +1,10 @@
 import logging
 
+import peewee
 from peewee import IntegrityError
 
 from mucs_database.person.model import Person
+from mucs_database.grading_group.model import GradingGroup
 
 logger = logging.getLogger(__name__)
 
@@ -38,3 +40,37 @@ def store_person(pawprint: str, name: str, sortable_name: str, canvas_id: int, g
     except IntegrityError as e:
         logger.warning(f"Student {pawprint} already exists; skipping | {e}")
         return None
+
+
+def get_person(pawprint: str, return_dict=True) -> dict or None or Person:
+    """
+        Returns a Person from the DB.
+        :param pawprint: The Person's pawprint you're searching for.
+        :param return_dict: Whether the function should return a dictionary or the actual ORM Model.
+    """
+    logger.debug(f"Getting person {pawprint}")
+    try:
+        person = Person.select().where(Person.pawprint == pawprint)
+        logger.debug(f"Retrieving successful for {pawprint}")
+        if return_dict:
+            logger.debug(f"Returning a dictionary of {pawprint}")
+            return person.dicts().get()
+        logger.debug(f"Returning a model of {pawprint}")
+        return person
+    except peewee.DoesNotExist as e:
+        logger.warning(f"{e}")
+        return None
+
+
+def get_person_grading_group(pawprint: str, return_dict=True) -> dict or None or GradingGroup:
+    """
+    Returns a Person's Grading Group.
+    :param pawprint: The Person's pawprint you're searching for.
+    :param return_dict: Whether the function should return a dictionary or the actual ORM Model.
+    """
+    logger.debug(f"Getting {pawprint}'s grading group")
+    person = get_person(pawprint=pawprint, return_dict=False)
+    grading_group = person.grading_group
+    if return_dict:
+        return grading_group.dicts().get()
+    return grading_group
