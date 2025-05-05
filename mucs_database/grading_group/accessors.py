@@ -56,3 +56,7 @@ def get_grading_group_by_name(grading_group_name: str) -> dict or None:
         return {"name": grader_sql.name, "canvas_id": grader_sql.canvas_id, "last_updated": grader_sql.last_updated}
     except DoesNotExist:
         logger.warning(f"No grading group exists with the name {grading_group_name}")
+
+
+def get_grading_groups() -> list[dict]:
+    return list(GradingGroup.select().dicts())
