@@ -30,7 +30,7 @@ def store_assignment(name: str, canvas_id: int, open_at: datetime,
             due_at=due_at,
             mucsv2_course=code,
             assignment_type=assignment_type,
-            file_submisson_count = file_count,
+            file_submission_count = file_count,
             original_name=original_name, )
         if replace:
             # REPLACE the whole row
