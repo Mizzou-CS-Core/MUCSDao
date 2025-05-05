@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from peewee import IntegrityError
+from peewee import IntegrityError, DoesNotExist
 
 from mucs_database.assignment.model import Assignment
 from mucs_database.init import get_mucsv2_instance_code
