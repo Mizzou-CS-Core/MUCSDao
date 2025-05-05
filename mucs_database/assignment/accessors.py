@@ -3,7 +3,6 @@ from datetime import datetime
 
 from peewee import IntegrityError
 
-import mucs_database.assignment
 from mucs_database.assignment.model import Assignment
 from mucs_database.init import get_mucsv2_instance_code
 
@@ -41,3 +40,10 @@ def store_assignment(name: str, canvas_id: int, open_at: datetime, due_at: datet
     except IntegrityError as e:
         logger.warning(f"Assignment {name} already exists; skipping | {e}")
         return None
+
+
+def get_assignments() -> list[dict]:
+    """
+    Returns a list of assignment dicts.
+    """
+    return list(Assignment.select().dicts())
