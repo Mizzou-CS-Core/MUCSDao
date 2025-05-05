@@ -49,4 +49,24 @@ def get_assignments() -> list[dict]:
     """
     Returns a list of assignment dicts.
     """
+    logger.debug("Retrieving list of assignments from DB")
     return list(Assignment.select().dicts())
+
+def get_assignment_by_name(name: str) -> dict or None:
+    """
+    Returns an assignment dependent on a name.
+    :param name: The name of the assignment you're seeking.
+    :returns: dict() or None if failure
+    """
+    logger.debug(f"Retrieving assignment corresponding to mucsv2_name: {name}")
+    try:
+        data: dict = (Assignment
+              .select()
+              .where(Assignment.mucsv2_name == name)
+              .dicts()
+              .get())
+        logger.debug(f"Retrievement successful for {name}")
+        return data
+    except DoesNotExist as e:
+        logger.warning(f"Assignment corresponding to mucsv2_name: {name} does not exist")
+        return None
