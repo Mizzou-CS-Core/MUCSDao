@@ -56,7 +56,7 @@ def get_person(pawprint: str, return_dict=True) -> dict or None or Person:
             logger.debug(f"Returning a dictionary of {pawprint}")
             return person.dicts().get()
         logger.debug(f"Returning a model of {pawprint}")
-        return person
+        return person.get()
     except peewee.DoesNotExist as e:
         logger.warning(f"{e}")
         return None
