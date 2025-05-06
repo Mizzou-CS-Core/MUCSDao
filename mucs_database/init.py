@@ -44,6 +44,7 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
     from mucs_database.assignment.model import Assignment
     from mucs_database.grading_group.model import GradingGroup
     from mucs_database.mucsv2_course.model import MUCSV2Course
+    from mucs_database.submission.model import Submission
     # Optional: nicer row access
     # _conn.row_factory = sqlite3.Row
     _db.connect()
@@ -53,6 +54,7 @@ def initialize_database(sqlite_db_path: str, mucsv2_instance_code: str) -> None:
         GradingGroup,
         Person,
         Assignment,
+        Submission,
     ], safe=True)
 
     logger.info("Database initialized and tables created")
