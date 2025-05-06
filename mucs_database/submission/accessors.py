@@ -1,10 +1,8 @@
 import logging
 from datetime import datetime
-import peewee
+
 from peewee import IntegrityError
 
-from mucs_database.person.model import Person
-from mucs_database.grading_group.model import GradingGroup
 from mucs_database.submission.model import Submission
 
 logger = logging.getLogger(__name__)

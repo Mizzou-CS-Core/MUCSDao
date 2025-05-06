@@ -17,4 +17,3 @@ class Submission(BaseModel):
     is_valid = BooleanField(null=False, default=False)
     is_late = BooleanField(null=False, default=False)
     time_submitted = DateTimeField()
-
