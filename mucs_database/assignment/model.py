@@ -1,4 +1,4 @@
-from peewee import TextField, IntegerField, DateTimeField, ForeignKeyField, Check
+from peewee import TextField, IntegerField, DateTimeField, ForeignKeyField, Check, BooleanField
 
 from mucs_database.base_model import BaseModel
 from mucs_database.mucsv2_course.model import MUCSV2Course
@@ -27,3 +27,5 @@ class Assignment(BaseModel):
             ]
     )
     file_submission_count = IntegerField()
+    test_file_directory_path = TextField()
+    submittable_to = BooleanField()

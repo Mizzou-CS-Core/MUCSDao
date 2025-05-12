@@ -1,17 +1,62 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from peewee import IntegrityError, DoesNotExist
 
 from mucs_database.assignment.model import Assignment
 from mucs_database.init import get_mucsv2_instance_code
+from deprecated import deprecated
 
 logger = logging.getLogger(__name__)
 
 
+def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optional[datetime],
+                      due_at: datetime, original_name: Optional[str],
+                      assignment_type: Optional[str], file_count_expected: Optional[int],
+                      test_file_directory_path: Optional[str], submittable_to: bool = True):
+    code = get_mucsv2_instance_code()
+    insert_data: dict = {
+        "mucsv2_name": name,
+        "mucsv2_course": code,
+        "canvas_id": canvas_id,
+        "due_at": due_at
+    }
+    optionals: dict = {
+        "open_at": open_at,
+        "original_name": original_name,
+        "assignment_type": assignment_type,
+        "file_count_expected": file_count_expected,
+        "test_file_directory_path": test_file_directory_path,
+        "submittable_to": submittable_to
+    }
+    insert_data.update({k: v for k, v in optionals if v is not None})
+    insert = Assignment.insert(**insert_data)
+    if replace:
+        insert = insert.on_conflict(action="REPLACE")
+    else:
+        update_map = {
+            getattr(Assignment, k): insert_data[k]
+            for k in optionals.keys()
+            if k in insert_data
+        }
+        if update_map:
+            insert = insert.on_conflict(
+                conflict_target=[Assignment.mucsv2_name],
+                action="UPDATE",
+                update=update_map,
+            )
+        else:
+            insert = insert.on_conflict(action="IGNORE")
+    insert.execute()
+    return name
+
+
+@deprecated(reason="Use upsert instead")
 def store_assignment(name: str, canvas_id: int, open_at: datetime,
                      due_at: datetime, original_name: str, assignment_type: str, file_count: int,
-                     replace: bool = False) -> str or None:
+                     replace: bool = False, test_file_directory_path: str = "",
+                     submittable_to: bool = True) -> str or None:
     """
     Insert an Assignment row to MUCSv2 DB
     :param name: The name of the assignment.
@@ -32,7 +77,10 @@ def store_assignment(name: str, canvas_id: int, open_at: datetime,
             mucsv2_course=code,
             assignment_type=assignment_type,
             file_submission_count=file_count,
-            original_name=original_name, )
+            original_name=original_name,
+            test_file_directory_path=test_file_directory_path,
+            submittable_to=submittable_to,
+        )
         if replace:
             # REPLACE the whole row
             query = query.on_conflict(action='REPLACE')
