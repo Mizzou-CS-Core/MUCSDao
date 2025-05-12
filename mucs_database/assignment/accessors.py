@@ -15,6 +15,20 @@ def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optiona
                       due_at: datetime, original_name: Optional[str],
                       assignment_type: Optional[str], file_count_expected: Optional[int],
                       test_file_directory_path: Optional[str], submittable_to: bool = True):
+    """
+    Inserts or updates an Assignment row in the DB
+    :param replace: Whether the DB should replace the object if one already exists
+    :param name: The MUCSv2 internal name of the assignment
+    :param canvas_id: The Canvas ID of the assignment
+    :param due_at: when the Assignment is due
+    :param open_at: OPTIONAL: when the Assignment can receive submissions
+    :param original_name: OPTIONAL: the Assignment name as it appears in Canvas
+    :param assignment_type: OPTIONAL: The type of language the Assignment is for
+    :param file_count_expected: OPTIONAL: How many files should be expected when a submission is made
+    :param test_file_directory_path: OPTIONAL: The path to test files necessary for an Assignment's submission
+    :param submittable_to: OPTIONAL: Whether the assignment accepts submissions
+    :return:
+    """
     code = get_mucsv2_instance_code()
     insert_data: dict = {
         "mucsv2_name": name,
