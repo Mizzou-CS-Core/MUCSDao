@@ -18,14 +18,14 @@ class Assignment(BaseModel):
     mucsv2_name = TextField(primary_key=True)
     mucsv2_course = ForeignKeyField(MUCSV2Course, backref="mucsv2_course_instance")
     canvas_id = IntegerField()
-    open_at = DateTimeField()
+    open_at = DateTimeField(null=True)
     due_at = DateTimeField()
     original_name = TextField(null=True)
-    assignment_type = TextField(
+    assignment_type = TextField(null=True,
         constraints=[
             Check("assignment_type IN ('c', 'cpp', 'none')")
             ]
     )
-    file_submission_count = IntegerField()
-    test_file_directory_path = TextField()
-    submittable_to = BooleanField()
+    file_submission_count = IntegerField(null=True)
+    test_file_directory_path = TextField(null=True)
+    submittable_to = BooleanField(null=True)
