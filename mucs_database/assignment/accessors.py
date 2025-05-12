@@ -11,14 +11,13 @@ from deprecated import deprecated
 logger = logging.getLogger(__name__)
 
 
-def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optional[datetime] = None,
-                      due_at: datetime = None, original_name: Optional[str] = None,
-                      assignment_type: Optional[str] = None, file_count_expected: Optional[int] = None,
-                      test_file_directory_path: Optional[str] = None, submittable_to: bool = True):
+def upsert_assignment(mucsv2_name: str, canvas_id: int, open_at: Optional[datetime] = None, due_at: datetime = None,
+                      original_name: Optional[str] = None, assignment_type: Optional[str] = None,
+                      file_count_expected: Optional[int] = None, test_file_directory_path: Optional[str] = None,
+                      submittable_to: bool = True):
     """
     Inserts or updates an Assignment row in the DB
-    :param replace: Whether the DB should replace the object if one already exists
-    :param name: The MUCSv2 internal name of the assignment
+    :param mucsv2_name: The MUCSv2 internal name of the assignment
     :param canvas_id: The Canvas ID of the assignment
     :param due_at: when the Assignment is due
     :param open_at: OPTIONAL: when the Assignment can receive submissions
@@ -31,7 +30,7 @@ def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optiona
     """
     code = get_mucsv2_instance_code()
     insert_data: dict = {
-        "mucsv2_name": name,
+        "mucsv2_name": mucsv2_name,
         "mucsv2_course": code,
         "canvas_id": canvas_id,
         "due_at": due_at
@@ -44,7 +43,7 @@ def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optiona
         "test_file_directory_path": test_file_directory_path,
         "submittable_to": submittable_to
     }
-    insert_data.update({k: v for k, v in optionals if v is not None})
+    insert_data.update({k: v for k, v in optionals.items() if v is not None})
     update_map = {
         getattr(Assignment, k): insert_data[k]
         for k in optionals
@@ -64,9 +63,9 @@ def upsert_assignment(replace: True, name: str, canvas_id: int, open_at: Optiona
     # 5) execute
     try:
         upsert.execute()
-        return name
+        return mucsv2_name
     except IntegrityError as e:
-        logger.error(f"Upsert failed for Assignment {name!r}: {e}")
+        logger.error(f"Upsert failed for Assignment {mucsv2_name!r}: {e}")
         return None
 @deprecated(reason="Use upsert instead")
 def store_assignment(name: str, canvas_id: int, open_at: datetime,
