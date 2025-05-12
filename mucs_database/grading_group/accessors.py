@@ -1,9 +1,12 @@
 import datetime
 import logging
 
-from peewee import IntegrityError, DoesNotExist
+from peewee import IntegrityError, DoesNotExist, fn
 
 from mucs_database.grading_group.model import GradingGroup
+from mucs_database.submission.model import Submission
+from mucs_database.assignment.model import Assignment
+from mucs_database.person.model import Person
 
 logger = logging.getLogger(__name__)
 
@@ -60,3 +63,24 @@ def get_grading_group_by_name(grading_group_name: str) -> dict or None:
 
 def get_grading_groups() -> list[dict]:
     return list(GradingGroup.select().dicts())
+
+
+def get_latest_submissions_from_group(assignment_id: int, grading_group_id: int) -> list:
+    latest_time_subquery = (
+        Submission
+        .select(fn.MAX(Submission.time_submitted))
+        .where(
+            (Submission.person == Person.pawprint) &
+            (Submission.assignment == assignment_id)
+        )
+    )
+    query = (
+        Submission.select(Submission, Person)
+        .join(Person, on=(Submission.person == Person.pawprint))
+        .where(
+            Submission.assignment == assignment_id,
+            Person.grading_group == grading_group_id,
+            Submission.time_submitted == latest_time_subquery
+        )
+    )
+    return list(query)
